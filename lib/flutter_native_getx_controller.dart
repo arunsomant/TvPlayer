@@ -16,14 +16,16 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
   final BuildContext context;
   final PlayerResource playerResource;
   final bool playWhenReady;
+  final String title;
   late FetchHlsMasterPlaylist fetchHlsMasterPlaylist;
   late PlayerMethodManager playerMethodManager;
   late PlayerMaterialBottomSheet playerMaterialBottomSheet;
 
   FlutterNativeGetxController(
       {required this.context,
-      required this.playerResource,
-      required this.playWhenReady});
+        required this.playerResource,
+        required this.playWhenReady,
+        required this.title});
 
   ///Current Position for subtitle
   Duration? currentPosition;
@@ -42,6 +44,8 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
 
   ///State for loading widget that on over player and overlay controller
   bool isShowLoading = false;
+
+  bool isReady = false;
 
   ///Component widget like button, progress bar, etc as singleton
   final playerWidget = PlayerWidget();
@@ -72,17 +76,22 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
 
   Timer? _visibile_controllers_future;
 
+  late AnimationController animatedController;
+
+  final test = false.obs;
+
   @override
   void onInit() {
     ///It's use to fetch hls segment and subtitle.
     fetchHlsMasterPlaylist =
         FetchHlsMasterPlaylist(playerResource: playerResource);
 
+    animatedController =  AnimationController(vsync: this, duration: Duration(milliseconds: 450));
     ///Method that use to interact with player on native code.
     playerMethodManager = PlayerMethodManager(
         fetchHlsMasterPlaylist: fetchHlsMasterPlaylist,
         playWhenReady: playWhenReady,
-    vsync:this);
+        vsync:animatedController);
 
     ///Method that use to open bottom sheet, i.e open bottom sheet to show quality, playback speed, download by quality.
     playerMaterialBottomSheet = PlayerMaterialBottomSheet(
@@ -109,6 +118,7 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
   }
 
   void _updateEventTypePlay() {
+    animatedController.forward();
     iconControlPlayer = const Icon(
       Icons.pause_outlined,
       color: Colors.white,
@@ -116,6 +126,7 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
   }
 
   void _updateEventTypePause() {
+    animatedController.reverse();
     iconControlPlayer = const Icon(
       Icons.play_arrow,
       color: Colors.white,
@@ -123,6 +134,7 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
   }
 
   void _updateEventTypeFinished() {
+    animatedController.reverse();
     controllerTimeout?.cancel();
     isShowLoading = false;
     isVisibleButtonPlay = true;
@@ -154,6 +166,7 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
       int milli_second_duration =  playerMethodManager.totalDuration();
       int milli_second_position = duration.inMilliseconds;
       double position_int = (milli_second_position/milli_second_duration)*100;
+      print("position: ${(position_int>100)? 100:((position_int<0)? 0:position_int)}");
       return (position_int>100)? 100:((position_int<0)? 0:position_int);
     }
     return 0;
@@ -178,6 +191,7 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
           {
             isShowLoading = false;
             isVisibleButtonPlay = true;
+            isReady = true;
           }
           break;
         case PlaybackState.play:
@@ -224,24 +238,33 @@ class FlutterNativeGetxController extends SuperController with GetSingleTickerPr
 
   void handleControllerTimeout() {
     controllerTimeout?.cancel();
-    controllerTimeout = Timer.periodic(const Duration(seconds: 8), (timer) {
+    controllerTimeout = Timer.periodic(const Duration(seconds: 5), (timer) {
       isShowController = false;
       update();
     });
   }
 
   hideControllers(){
-      isShowController = true;
-      update();
-    if(_visibile_controllers_future != null){
-      _visibile_controllers_future?.cancel();
+    print('HideController called: $isShowController');
+    isShowController = true;
+
+    if(controllerTimeout != null){
+      controllerTimeout?.cancel();
     }
-    _visibile_controllers_future = Timer(Duration(milliseconds: 5000), () {
+    controllerTimeout = Timer(Duration(milliseconds: 5000), () {
       isShowController = false;
-        update();
+      update();
     });
     // and later, before the timer goes off...
+    update();
+  }
 
+  forceHideControllers(){
+    isShowController = false;
+    update();
+    if(controllerTimeout != null){
+      controllerTimeout?.cancel();
+    }
   }
 
   @override

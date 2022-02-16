@@ -37,13 +37,13 @@ class PlayerMethodManager {
   late AnimationController animatedController;
 
   final StreamController<DurationState> _streamControllerDurationState =
-      StreamController.broadcast();
+  StreamController.broadcast();
   final StreamController<PlaybackState> _streamControllerPlaybackState =
-      StreamController.broadcast();
+  StreamController.broadcast();
   final StreamController<DownloadState> _streamControllerDownloadState =
-      StreamController.broadcast();
+  StreamController.broadcast();
   final StreamController<double> _streamControllerProgressDownloadState =
-      StreamController.broadcast();
+  StreamController.broadcast();
 
   Stream<DurationState> get streamDurationState =>
       _streamControllerDurationState.stream;
@@ -59,7 +59,7 @@ class PlayerMethodManager {
   PlayerMethodManager(
       {required this.fetchHlsMasterPlaylist, required this.playWhenReady,required this.vsync})
       : super() {
-    animatedController = AnimationController(vsync: vsync, duration: Duration(milliseconds: 450));
+    animatedController = vsync;
     initPlayerListener();
     initCurrentUrlQuality();
   }
@@ -445,6 +445,5 @@ class PlayerMethodManager {
     _streamControllerDownloadState.close();
     _streamControllerPlaybackState.close();
     _streamControllerProgressDownloadState.close();
-    animatedController.dispose();
   }
 }

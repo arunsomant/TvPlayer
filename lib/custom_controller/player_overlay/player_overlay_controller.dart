@@ -35,18 +35,10 @@ class PlayerOverlayController extends StatelessWidget {
                   controller.update();
                 },
               )
-            : GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  controller.isShowController = true;
-                  controller.handleControllerTimeout();
-                  controller.update();
-                },
-                child: const SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
-              ),
+            : const SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+        ),
       ),
     );
   }
