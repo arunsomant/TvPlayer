@@ -12,7 +12,7 @@ import 'method_manager/download_state.dart';
 import 'method_manager/playback_state.dart';
 import 'method_manager/player_method_manager.dart';
 
-class FlutterNativeGetxController extends SuperController {
+class FlutterNativeGetxController extends SuperController with GetSingleTickerProviderStateMixin {
   final BuildContext context;
   final PlayerResource playerResource;
   final bool playWhenReady;
@@ -70,7 +70,7 @@ class FlutterNativeGetxController extends SuperController {
   ///Indicatermate to show or hide loading over download button before show circular progress bar that will modify base on download state.
   bool isIndicatermateCircularProgress = false;
 
-  Timer _visibile_controllers_future;
+  Timer? _visibile_controllers_future;
 
   @override
   void onInit() {
@@ -81,7 +81,8 @@ class FlutterNativeGetxController extends SuperController {
     ///Method that use to interact with player on native code.
     playerMethodManager = PlayerMethodManager(
         fetchHlsMasterPlaylist: fetchHlsMasterPlaylist,
-        playWhenReady: playWhenReady);
+        playWhenReady: playWhenReady,
+    vsync:this);
 
     ///Method that use to open bottom sheet, i.e open bottom sheet to show quality, playback speed, download by quality.
     playerMaterialBottomSheet = PlayerMaterialBottomSheet(
@@ -233,7 +234,7 @@ class FlutterNativeGetxController extends SuperController {
       isShowController = true;
       update();
     if(_visibile_controllers_future != null){
-      _visibile_controllers_future.cancel();
+      _visibile_controllers_future?.cancel();
     }
     _visibile_controllers_future = Timer(Duration(milliseconds: 5000), () {
       isShowController = false;

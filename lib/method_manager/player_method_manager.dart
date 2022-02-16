@@ -18,6 +18,7 @@ class PlayerMethodManager {
   final eventChannel = const EventChannel(Constant.EVENT_CHANNEL_PLAYER);
   FetchHlsMasterPlaylist fetchHlsMasterPlaylist;
   bool playWhenReady;
+  dynamic vsync;
   PlaybackState _playbackState = PlaybackState.loading;
   int? _totalDuration;
   int? _currentPosition;
@@ -33,7 +34,7 @@ class PlayerMethodManager {
   PlayerResource? _playerResource;
   int? _trackIndex;
 
-  AnimationController animatedController;
+  late AnimationController animatedController;
 
   final StreamController<DurationState> _streamControllerDurationState =
       StreamController.broadcast();
@@ -56,8 +57,9 @@ class PlayerMethodManager {
   Function(PlayerKidSubtitlesSource source)? _subtitleSelectedListener;
 
   PlayerMethodManager(
-      {required this.fetchHlsMasterPlaylist, required this.playWhenReady})
+      {required this.fetchHlsMasterPlaylist, required this.playWhenReady,required this.vsync})
       : super() {
+    animatedController = AnimationController(vsync: vsync, duration: Duration(milliseconds: 450));
     initPlayerListener();
     initCurrentUrlQuality();
   }

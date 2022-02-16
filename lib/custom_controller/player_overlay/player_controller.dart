@@ -174,7 +174,7 @@ class PlayerController extends StatelessWidget {
         print("KeyEvent");
         if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
           RawKeyDownEvent rawKeyDownEvent = event;
-          RawKeyEventDataAndroid rawKeyEventDataAndroid = rawKeyDownEvent.data;
+          RawKeyEventDataAndroid rawKeyEventDataAndroid = rawKeyDownEvent.data as RawKeyEventDataAndroid;
           print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
           if(!controller.isShowController && rawKeyEventDataAndroid.keyCode != 4) {
             controller.hideControllers();
@@ -410,11 +410,11 @@ class PlayerController extends StatelessWidget {
 
 
 class CustomTrackShape extends RoundedRectSliderTrackShape {Rect getPreferredRect({
-  @required RenderBox parentBox,
+  required RenderBox parentBox,
   Offset offset = Offset.zero,
-  @required SliderThemeData sliderTheme,
+  required SliderThemeData sliderTheme,
   bool isEnabled = false,
-  bool isDiscrete = false,}) {final double trackHeight = sliderTheme.trackHeight;
+  bool isDiscrete = false,}) {final double trackHeight = sliderTheme.trackHeight??0;
 final double trackLeft = offset.dx;
 final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
 final double trackWidth = parentBox.size.width;
